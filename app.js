@@ -100,5 +100,20 @@ app.post("/auth/login", async (req, res) => {
     }
   });
 });
+// Protected route to get current user info
+app.get("/me", (req, res) => {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) return res.status(401).json({ error: "No token provided" });
 
+    const token = authHeader.split(" ")[1];
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        const user = users.find(u => u.email === decoded.email);
+        if (!user) return res.status(404).json({ error: "User not found" });
+
+        res.json({ email: user.email, clicks: user.clicks, referrerCode: user.referrerCode });
+    } catch (err) {
+        res.status(401).json({ error: "Invalid token" });
+    }
+});
 app.listen(PORT, () => console.log(`API running on :${PORT}`));
