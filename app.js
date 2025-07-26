@@ -116,4 +116,32 @@ app.get("/me", (req, res) => {
         res.status(401).json({ error: "Invalid token" });
     }
 });
+app.post("/register", async (req, res) => {
+  const { email, password, name } = req.body || {};
+  if (!email || !password || !name) {
+    return res.status(400).json({ error: "email, password, name required" });
+  }
+
+  const exists = users.find(u => u.email === email);
+  if (exists) return res.status(409).json({ error: "email already used" });
+
+  const passwordHash = await bcrypt.hash(password, 10);
+  const user = {
+    id: users.length + 1,
+    email,
+    name,
+    passwordHash,
+    code: nanoid(8),      // referral code
+    referrerCode: null,   // for future MLM logic
+    createdAt: new Date()
+  };
+  users.push(user);
+
+  const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, { expiresIn: "7d" });
+
+  res.json({
+    token,
+    user: { id: user.id, email: user.email, code: user.code }
+  });
+});
 app.listen(PORT, () => console.log(`API running on :${PORT}`));
