@@ -12,6 +12,7 @@ const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET || "dev_secret_change_me";
 
 const users = [];
+const clicks = [];
 const COMMISSION_LEVELS = [0.10, 0.05, 0.02];
 
 // Test route
