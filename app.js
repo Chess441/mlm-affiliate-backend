@@ -105,4 +105,13 @@ app.get("/click/:code", (req, res) => {
 
   res.json({ message: `Click recorded for ${code}`, totalClicks: clicks.filter(c => c.code === code).length });
 });
+// Track referral clicks
+app.post("/click/:code", (req, res) => {
+  const { code } = req.params;
+  const user = users.find(u => u.code === code);
+  if (!user) return res.status(404).json({ error: "Referral code not found" });
+
+  clicks.push({ code, time: new Date() });
+  res.json({ message: "Click recorded" });
+});
 app.listen(PORT, () => console.log(`API running on :${PORT}`));
