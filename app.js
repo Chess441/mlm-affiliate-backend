@@ -16,6 +16,12 @@ const clicks = [];
 const orders = [];
 const COMMISSION_LEVELS = [0.10, 0.05, 0.02];
 
+// Test route
+app.get("/", (_req, res) => {
+  res.send("🚀 MLM Affiliate Backend is LIVE");
+});
+
+// Helper functions
 function genCode() {
   return nanoid(8);
 }
@@ -41,12 +47,13 @@ function auth(req, res, next) {
   }
 }
 
-app.get("/", (_req, res) => res.json({ ok: true }));
-
+// Signup
 app.post("/auth/signup", async (req, res) => {
   const { name, email, password, ref } = req.body || {};
-  if (!email || !password) return res.status(400).json({ error: "email & password required" });
-  if (users.some(u => u.email === email)) return res.status(409).json({ error: "email exists" });
+  if (!email || !password)
+    return res.status(400).json({ error: "email & password required" });
+  if (users.some(u => u.email === email))
+    return res.status(409).json({ error: "email exists" });
 
   const passwordHash = await bcrypt.hash(password, 10);
   const code = genCode();
@@ -63,9 +70,18 @@ app.post("/auth/signup", async (req, res) => {
   users.push(user);
 
   const token = signJWT(user);
-  res.json({ token, user: { id: user.id, email: user.email, code: user.code, referrerCode: user.referrerCode } });
+  res.json({
+    token,
+    user: {
+      id: user.id,
+      email: user.email,
+      code: user.code,
+      referrerCode: user.referrerCode
+    }
+  });
 });
 
+// Login
 app.post("/auth/login", async (req, res) => {
   const { email, password } = req.body || {};
   const user = users.find(u => u.email === email);
@@ -74,7 +90,15 @@ app.post("/auth/login", async (req, res) => {
   if (!ok) return res.status(401).json({ error: "invalid creds" });
 
   const token = signJWT(user);
-  res.json({ token, user: { id: user.id, email: user.email, code: user.code, referrerCode: user.referrerCode } });
+  res.json({
+    token,
+    user: {
+      id: user.id,
+      email: user.email,
+      code: user.code,
+      referrerCode: user.referrerCode
+    }
+  });
 });
 
 app.listen(PORT, () => console.log(`API running on :${PORT}`));
