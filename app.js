@@ -87,5 +87,22 @@ app.get("/me", (req, res) => {
     res.status(401).json({ error: "Invalid token" });
   }
 });
+// Track referral clicks
+app.get("/click/:code", (req, res) => {
+  const { code } = req.params;
+  const user = users.find(u => u.code === code);
 
+  if (!user) {
+    return res.status(404).json({ error: "Referral code not found" });
+  }
+
+  // Log the click
+  clicks.push({
+    code,
+    timestamp: new Date().toISOString(),
+    ip: req.ip
+  });
+
+  res.json({ message: `Click recorded for ${code}`, totalClicks: clicks.filter(c => c.code === code).length });
+});
 app.listen(PORT, () => console.log(`API running on :${PORT}`));
